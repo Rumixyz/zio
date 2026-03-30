@@ -5,7 +5,7 @@ import zio.stacktracer.TracingImplicits.disableAutoTrace
 
 import java.util.concurrent.atomic.AtomicReference
 
-trait ThreadLocalBridge {
+sealed trait ThreadLocalBridge {
   def makeFiberRef[A](initialValue: A)(link: A => Unit): ZIO[Scope, Nothing, FiberRef[A]]
 }
 
@@ -36,7 +36,7 @@ object ThreadLocalBridge {
           }
       }
     }
-    supervisorLayer ++ bridgeLayer
+    supervisorLayer <*> bridgeLayer
   }
 
   private class FiberRefTrackingSupervisor extends Supervisor[Unit] {

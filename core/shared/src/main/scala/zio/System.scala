@@ -19,8 +19,7 @@ package zio
 import zio.stacktracer.TracingImplicits.disableAutoTrace
 
 import java.lang.{System => JSystem}
-import scala.annotation.nowarn
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait System extends Serializable { self =>
   def env(variable: => String)(implicit trace: Trace): IO[SecurityException, Option[String]]
@@ -102,7 +101,7 @@ trait System extends Serializable { self =>
 
 object System extends SystemPlatformSpecific {
 
-  val tag: Tag[System] = Tag[System]
+  implicit val tag: Tag[System] = Tag(EnvironmentTag.tagFromTagMacro[System])
 
   object SystemLive extends System {
     def env(variable: => String)(implicit trace: Trace): IO[SecurityException, Option[String]] =
@@ -153,7 +152,6 @@ object System extends SystemPlatformSpecific {
         override def lineSeparator()(implicit unsafe: Unsafe): String =
           JSystem.lineSeparator
 
-        @nowarn("msg=JavaConverters")
         override def properties()(implicit unsafe: Unsafe): Map[String, String] =
           JSystem.getProperties.asScala.toMap
 
